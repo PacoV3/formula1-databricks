@@ -5,6 +5,19 @@
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC #### Step 0 - Get paths and functions from another notebook
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC #### Step 1 - Read the JSON file using the spark DataFrameReader API
 
 # COMMAND ----------
@@ -33,7 +46,7 @@ drivers_schema = StructType(fields=[
 
 # COMMAND ----------
 
-drivers_df = spark.read.schema(drivers_schema).json('/mnt/formula1dludemy/raw/drivers.json')
+drivers_df = spark.read.schema(drivers_schema).json(f'{raw_folder_path}/drivers.json')
 
 # COMMAND ----------
 
@@ -50,14 +63,17 @@ display(drivers_df)
 
 # COMMAND ----------
 
-from pyspark.sql.functions import col, concat, current_timestamp, lit
+from pyspark.sql.functions import col, concat, lit
 
 # COMMAND ----------
 
 drivers_complete_df = drivers_df.withColumnRenamed('driverId', 'driver_id') \
     .withColumnRenamed('driverRef', 'driver_ref') \
-    .withColumn('ingestion_date', current_timestamp()) \
     .withColumn('name', concat(col('name.forename'), lit(' '), col('name.surname')))
+
+# COMMAND ----------
+
+drivers_complete_df = add_ingestion_date(drivers_complete_df)
 
 # COMMAND ----------
 
@@ -86,8 +102,8 @@ display(drivers_final_df)
 
 # COMMAND ----------
 
-drivers_final_df.write.mode('overwrite').parquet('/mnt/formula1dludemy/processed/drivers')
+drivers_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/drivers')
 
 # COMMAND ----------
 
-display(spark.read.parquet('/mnt/formula1dludemy/processed/drivers'))
+display(spark.read.parquet(f'{processed_folder_path}/drivers'))

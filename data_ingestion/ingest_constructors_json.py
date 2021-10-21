@@ -5,6 +5,19 @@
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC #### Step 0 - Import variables and functions from another notebook
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC #### Step 1 - Read the JSON file using spark DataFrameReader
 
 # COMMAND ----------
@@ -14,7 +27,7 @@ constructors_schema = 'constructorId INT, constructorRef STRING, name STRING, na
 
 # COMMAND ----------
 
-constructors_df = spark.read.schema(constructors_schema).json('/mnt/formula1dludemy/raw/constructors.json')
+constructors_df = spark.read.schema(constructors_schema).json(f'{raw_folder_path}/constructors.json')
 
 # COMMAND ----------
 
@@ -32,13 +45,12 @@ constructors_dropped_df = constructors_df.drop(constructors_df.url)
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+constructors_final_df = constructors_dropped_df.withColumnRenamed('constructorId', 'constructor_id') \
+    .withColumnRenamed('constructorRef', 'constructor_ref')
 
 # COMMAND ----------
 
-constructors_final_df = constructors_dropped_df.withColumnRenamed('constructorId', 'constructor_id') \
-    .withColumnRenamed('constructorRef', 'constructor_ref') \
-    .withColumn('ingestion_date', current_timestamp())
+constructors_final_df = add_ingestion_date(constructors_final_df)
 
 # COMMAND ----------
 
@@ -47,9 +59,4 @@ constructors_final_df = constructors_dropped_df.withColumnRenamed('constructorId
 
 # COMMAND ----------
 
-constructors_final_df.write.mode('overwrite').parquet('/mnt/formula1dludemy/processed/constructors')
-
-# COMMAND ----------
-
-# MAGIC %fs
-# MAGIC ls /mnt/formula1dludemy/processed/constructors
+constructors_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/constructors')

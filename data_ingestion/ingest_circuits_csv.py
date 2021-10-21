@@ -5,6 +5,23 @@
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC #### Step 0 - Get paths and functions from another notebook
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
+print(raw_folder_path)
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC #### Step 1 - Read the CSV file using the spark dataframe reader
 
 # COMMAND ----------
@@ -14,7 +31,7 @@
 
 # COMMAND ----------
 
-circuits_df = spark.read.csv('/mnt/formula1dludemy/raw/circuits.csv')
+circuits_df = spark.read.csv(f'{raw_folder_path}/circuits.csv')
 
 # COMMAND ----------
 
@@ -33,21 +50,21 @@ from pyspark.sql.types import StructType, StructField, IntegerType, StringType, 
 
 # StructType represents rows inside a DataFrame and StructType represents the columns
 circuits_schema = StructType(fields=[
-    StructField("circuitId", IntegerType(), False),
-    StructField("circuitRef", StringType(), True),
-    StructField("name", StringType(), True),
-    StructField("location", StringType(), True),
-    StructField("country", StringType(), True),
-    StructField("lat", DoubleType(), True),
-    StructField("lng", DoubleType(), True),
-    StructField("alt", IntegerType(), True),
-    StructField("url", StringType(), True),
+    StructField('circuitId', IntegerType(), False),
+    StructField('circuitRef', StringType(), True),
+    StructField('name', StringType(), True),
+    StructField('location', StringType(), True),
+    StructField('country', StringType(), True),
+    StructField('lat', DoubleType(), True),
+    StructField('lng', DoubleType(), True),
+    StructField('alt', IntegerType(), True),
+    StructField('url', StringType(), True),
 ])
 
 # COMMAND ----------
 
 # The correct way to import data from a CSV (including the headers)
-circuits_df = spark.read.option("header",True).schema(circuits_schema).csv('/mnt/formula1dludemy/raw/circuits.csv')
+circuits_df = spark.read.option('header',True).schema(circuits_schema).csv(f'{raw_folder_path}/circuits.csv')
 
 # COMMAND ----------
 
@@ -81,7 +98,7 @@ from pyspark.sql.functions import col
 
 # COMMAND ----------
 
-circuits_selected_df = circuits_df.select(col("circuitId"), col("circuitRef"), col("name"), col("location"), col("country"), col("lat"), col("lng"), col("alt"))
+circuits_selected_df = circuits_df.select(col('circuitId'), col('circuitRef'), col('name'), col('location'), col('country'), col('lat'), col('lng'), col('alt'))
 
 # COMMAND ----------
 
@@ -94,11 +111,11 @@ display(circuits_selected_df)
 
 # COMMAND ----------
 
-circuits_renamed_df = circuits_selected_df.withColumnRenamed("circuitId", "circuit_id") \
-    .withColumnRenamed("circuitRef", "circuit_ref") \
-    .withColumnRenamed("lat", "latitude") \
-    .withColumnRenamed("lng", "longitude") \
-    .withColumnRenamed("alt", "altitude")
+circuits_renamed_df = circuits_selected_df.withColumnRenamed('circuitId', 'circuit_id') \
+    .withColumnRenamed('circuitRef', 'circuit_ref') \
+    .withColumnRenamed('lat', 'latitude') \
+    .withColumnRenamed('lng', 'longitude') \
+    .withColumnRenamed('alt', 'altitude')
 
 # COMMAND ----------
 
@@ -111,13 +128,14 @@ display(circuits_renamed_df)
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+# from pyspark.sql.functions import current_timestamp
 
 # COMMAND ----------
 
-circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_timestamp())
+#circuits_final_df = circuits_renamed_df.withColumn('ingestion_date', current_timestamp())
 # To create a column from one value
 # from pyspark.sql.functions import lit -> .withColumn("ingestion_date", lit("X"))
+circuits_final_df = add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
@@ -130,7 +148,7 @@ display(circuits_final_df)
 
 # COMMAND ----------
 
-circuits_final_df.write.mode("overwrite").parquet("/mnt/formula1dludemy/processed/circuits")
+circuits_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/circuits')
 
 # COMMAND ----------
 
@@ -139,8 +157,4 @@ circuits_final_df.write.mode("overwrite").parquet("/mnt/formula1dludemy/processe
 
 # COMMAND ----------
 
-df = spark.read.parquet("/mnt/formula1dludemy/processed/circuits")
-
-# COMMAND ----------
-
-display(df)
+display(spark.read.parquet(f'{processed_folder_path}/circuits'))
