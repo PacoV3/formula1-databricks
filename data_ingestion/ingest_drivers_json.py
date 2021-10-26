@@ -9,6 +9,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text('p_data_source', '')
+v_data_source = dbutils.widgets.get('p_data_source')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -50,7 +55,7 @@ drivers_df = spark.read.schema(drivers_schema).json(f'{raw_folder_path}/drivers.
 
 # COMMAND ----------
 
-display(drivers_df)
+# display(drivers_df)
 
 # COMMAND ----------
 
@@ -77,7 +82,11 @@ drivers_complete_df = add_ingestion_date(drivers_complete_df)
 
 # COMMAND ----------
 
-display(drivers_complete_df)
+drivers_complete_df = add_data_source(drivers_complete_df, v_data_source)
+
+# COMMAND ----------
+
+# display(drivers_complete_df)
 
 # COMMAND ----------
 
@@ -93,7 +102,7 @@ drivers_final_df = drivers_complete_df.drop(drivers_complete_df.url)
 
 # COMMAND ----------
 
-display(drivers_final_df)
+# display(drivers_final_df)
 
 # COMMAND ----------
 
@@ -106,4 +115,4 @@ drivers_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/drive
 
 # COMMAND ----------
 
-display(spark.read.parquet(f'{processed_folder_path}/drivers'))
+dbutils.notebook.exit('Success')

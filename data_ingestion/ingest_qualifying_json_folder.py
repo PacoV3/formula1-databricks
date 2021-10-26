@@ -1,4 +1,9 @@
 # Databricks notebook source
+dbutils.widgets.text('p_data_source', '')
+v_data_source = dbutils.widgets.get('p_data_source')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -40,8 +45,12 @@ final_qualifying_df = add_ingestion_date(final_qualifying_df)
 
 # COMMAND ----------
 
+final_qualifying_df = add_data_source(final_qualifying_df, v_data_source)
+
+# COMMAND ----------
+
 final_qualifying_df.write.mode('overwrite').parquet(f'{processed_folder_path}/qualifying')
 
 # COMMAND ----------
 
-display(spark.read.parquet(f'{processed_folder_path}/qualifying'))
+dbutils.notebook.exit('Success')

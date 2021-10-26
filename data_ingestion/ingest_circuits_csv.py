@@ -9,6 +9,15 @@
 
 # COMMAND ----------
 
+# dbutils.widgets.help()
+
+# COMMAND ----------
+
+dbutils.widgets.text('p_data_source', '')
+v_data_source = dbutils.widgets.get('p_data_source')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -17,17 +26,8 @@
 
 # COMMAND ----------
 
-print(raw_folder_path)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC #### Step 1 - Read the CSV file using the spark dataframe reader
-
-# COMMAND ----------
-
-# MAGIC %fs
-# MAGIC ls /mnt/formula1dludemy/raw
 
 # COMMAND ----------
 
@@ -35,11 +35,7 @@ circuits_df = spark.read.csv(f'{raw_folder_path}/circuits.csv')
 
 # COMMAND ----------
 
-type(circuits_df)
-
-# COMMAND ----------
-
-circuits_df.show(2)
+# circuits_df.show(2)
 
 # COMMAND ----------
 
@@ -68,15 +64,15 @@ circuits_df = spark.read.option('header',True).schema(circuits_schema).csv(f'{ra
 
 # COMMAND ----------
 
-display(circuits_df)
+# display(circuits_df)
 
 # COMMAND ----------
 
-circuits_df.printSchema()
+# circuits_df.printSchema()
 
 # COMMAND ----------
 
-circuits_df.describe().show()
+# circuits_df.describe().show()
 
 # COMMAND ----------
 
@@ -102,7 +98,7 @@ circuits_selected_df = circuits_df.select(col('circuitId'), col('circuitRef'), c
 
 # COMMAND ----------
 
-display(circuits_selected_df)
+# display(circuits_selected_df)
 
 # COMMAND ----------
 
@@ -119,7 +115,7 @@ circuits_renamed_df = circuits_selected_df.withColumnRenamed('circuitId', 'circu
 
 # COMMAND ----------
 
-display(circuits_renamed_df)
+# display(circuits_renamed_df)
 
 # COMMAND ----------
 
@@ -139,7 +135,11 @@ circuits_final_df = add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
-display(circuits_final_df)
+circuits_final_df = add_data_source(circuits_final_df, v_data_source)
+
+# COMMAND ----------
+
+# display(circuits_final_df)
 
 # COMMAND ----------
 
@@ -152,9 +152,4 @@ circuits_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/circ
 
 # COMMAND ----------
 
-# MAGIC %fs
-# MAGIC ls /mnt/formula1dludemy/processed/circuits
-
-# COMMAND ----------
-
-display(spark.read.parquet(f'{processed_folder_path}/circuits'))
+dbutils.notebook.exit('Success')

@@ -1,4 +1,9 @@
 # Databricks notebook source
+dbutils.widgets.text('p_data_source', '')
+v_data_source = dbutils.widgets.get('p_data_source')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -7,8 +12,7 @@
 
 # COMMAND ----------
 
-# MAGIC %fs
-# MAGIC ls /mnt/formula1dludemy/raw/lap_times
+# %fs ls /mnt/formula1dludemy/raw/lap_times
 
 # COMMAND ----------
 
@@ -40,8 +44,12 @@ final_laps_df = add_ingestion_date(final_laps_df)
 
 # COMMAND ----------
 
+final_laps_df = add_data_source(final_laps_df, v_data_source)
+
+# COMMAND ----------
+
 final_laps_df.write.mode('overwrite').parquet(f'{processed_folder_path}/lap_times')
 
 # COMMAND ----------
 
-display(spark.read.parquet(f'{processed_folder_path}/lap_times'))
+dbutils.notebook.exit('Success')

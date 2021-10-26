@@ -1,4 +1,9 @@
 # Databricks notebook source
+dbutils.widgets.text('p_data_source', '')
+v_data_source = dbutils.widgets.get('p_data_source')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -7,8 +12,7 @@
 
 # COMMAND ----------
 
-# MAGIC %fs
-# MAGIC head /mnt/formula1dludemy/raw/results.json
+# %fs head /mnt/formula1dludemy/raw/results.json
 
 # COMMAND ----------
 
@@ -63,7 +67,11 @@ results_renamed_df = add_ingestion_date(results_renamed_df)
 
 # COMMAND ----------
 
-display(results_renamed_df)
+results_renamed_df = add_data_source(results_renamed_df, v_data_source)
+
+# COMMAND ----------
+
+# display(results_renamed_df)
 
 # COMMAND ----------
 
@@ -75,4 +83,4 @@ final_results_df.write.mode('overwrite').partitionBy('race_id').parquet(f'{proce
 
 # COMMAND ----------
 
-display(spark.read.parquet(f'{processed_folder_path}/results'))
+dbutils.notebook.exit('Success')

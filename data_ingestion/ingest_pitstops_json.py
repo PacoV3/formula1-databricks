@@ -1,4 +1,9 @@
 # Databricks notebook source
+dbutils.widgets.text('p_data_source', '')
+v_data_source = dbutils.widgets.get('p_data_source')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -8,8 +13,7 @@
 # COMMAND ----------
 
 # This is a multiline JSON (the default for spark is an inline JSON)
-%fs
-head /mnt/formula1dludemy/raw/pit_stops.json
+# %fs head /mnt/formula1dludemy/raw/pit_stops.json
 
 # COMMAND ----------
 
@@ -42,8 +46,12 @@ final_pits_df = add_ingestion_date(final_pits_df)
 
 # COMMAND ----------
 
+final_pits_df = add_data_source(final_pits_df, v_data_source)
+
+# COMMAND ----------
+
 final_pits_df.write.mode('overwrite').parquet(f'{processed_folder_path}/pit_stops')
 
 # COMMAND ----------
 
-display(spark.read.parquet(f'{processed_folder_path}/pit_stops'))
+dbutils.notebook.exit('Success')

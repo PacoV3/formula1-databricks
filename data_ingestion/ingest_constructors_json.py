@@ -9,6 +9,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text('p_data_source', '')
+v_data_source = dbutils.widgets.get('p_data_source')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -54,9 +59,17 @@ constructors_final_df = add_ingestion_date(constructors_final_df)
 
 # COMMAND ----------
 
+constructors_final_df = add_data_source(constructors_final_df, v_data_source)
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC #### Step 4 - Write the output to a Parquet file
 
 # COMMAND ----------
 
 constructors_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/constructors')
+
+# COMMAND ----------
+
+dbutils.notebook.exit('Success')

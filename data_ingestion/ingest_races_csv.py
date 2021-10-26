@@ -9,6 +9,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text('p_data_source', '')
+v_data_source = dbutils.widgets.get('p_data_source')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -17,13 +22,11 @@
 
 # COMMAND ----------
 
-# MAGIC %fs
-# MAGIC ls /mnt/formula1dludemy/raw
+# %fs ls /mnt/formula1dludemy/raw
 
 # COMMAND ----------
 
-# MAGIC %fs
-# MAGIC head dbfs:/mnt/formula1dludemy/raw/races.csv
+# %fs head dbfs:/mnt/formula1dludemy/raw/races.csv
 
 # COMMAND ----------
 
@@ -54,11 +57,11 @@ races_df = spark.read.option('header',True).schema(races_schema).csv(f'{raw_fold
 
 # COMMAND ----------
 
-display(races_df)
+# display(races_df)
 
 # COMMAND ----------
 
-races_df.describe().show()
+# races_df.describe().show()
 
 # COMMAND ----------
 
@@ -86,11 +89,15 @@ races_final_df = races_renamed_df.withColumn('race_timestamp', to_timestamp(conc
 
 # COMMAND ----------
 
+races_final_df = races_final_df.select(col('race_id'), col('race_year'), col('round'), col('circuit_id'), col('name'), col('race_timestamp'))
+
+# COMMAND ----------
+
 races_final_df = add_ingestion_date(races_final_df)
 
 # COMMAND ----------
 
-races_final_df = races_final_df.select(col('race_id'), col('race_year'), col('round'), col('circuit_id'), col('name'), col('race_timestamp'), col('ingestion_date'))
+races_final_df = add_data_source(races_final_df, v_data_source)
 
 # COMMAND ----------
 
@@ -99,20 +106,11 @@ races_final_df = races_final_df.select(col('race_id'), col('race_year'), col('ro
 
 # COMMAND ----------
 
-races_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/races')
+# races_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/races')
 
 # COMMAND ----------
 
-# MAGIC %fs
-# MAGIC ls /mnt/formula1dludemy/processed/races
-
-# COMMAND ----------
-
-df = spark.read.parquet(f'{processed_folder_path}/races')
-
-# COMMAND ----------
-
-display(df)
+# display(races_final_df)
 
 # COMMAND ----------
 
@@ -122,3 +120,7 @@ display(df)
 # COMMAND ----------
 
 races_final_df.write.mode('overwrite').partitionBy('race_year').parquet(f'{processed_folder_path}/races')
+
+# COMMAND ----------
+
+dbutils.notebook.exit('Success')
