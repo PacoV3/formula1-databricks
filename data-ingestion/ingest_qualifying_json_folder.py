@@ -49,7 +49,7 @@ final_qualifying_df = add_data_source(final_qualifying_df, v_data_source)
 
 # COMMAND ----------
 
-final_qualifying_df.write.mode('overwrite').parquet(f'{processed_folder_path}/qualifying')
+final_qualifying_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.qualifying')
 
 # COMMAND ----------
 

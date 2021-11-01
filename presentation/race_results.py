@@ -53,4 +53,4 @@ display(race_results.filter(race_results.race_year == 2009).orderBy(race_results
 
 # COMMAND ----------
 
-race_results.write.mode('overwrite').parquet(f'{presentation_folder_path}/race_results')
+race_results.write.mode('overwrite').format('parquet').saveAsTable('f1_presentation.race_results')

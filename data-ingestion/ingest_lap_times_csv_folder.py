@@ -48,7 +48,7 @@ final_laps_df = add_data_source(final_laps_df, v_data_source)
 
 # COMMAND ----------
 
-final_laps_df.write.mode('overwrite').parquet(f'{processed_folder_path}/lap_times')
+final_laps_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.lap_times')
 
 # COMMAND ----------
 

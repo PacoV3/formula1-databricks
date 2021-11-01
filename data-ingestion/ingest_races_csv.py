@@ -119,7 +119,7 @@ races_final_df = add_data_source(races_final_df, v_data_source)
 
 # COMMAND ----------
 
-races_final_df.write.mode('overwrite').partitionBy('race_year').parquet(f'{processed_folder_path}/races')
+races_final_df.write.mode('overwrite').partitionBy('race_year').format('parquet').saveAsTable('f1_processed.races')
 
 # COMMAND ----------
 

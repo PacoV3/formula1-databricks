@@ -148,7 +148,7 @@ circuits_final_df = add_data_source(circuits_final_df, v_data_source)
 
 # COMMAND ----------
 
-circuits_final_df.write.mode('overwrite').parquet(f'{processed_folder_path}/circuits')
+circuits_final_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.circuits')
 
 # COMMAND ----------
 

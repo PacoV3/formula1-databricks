@@ -50,7 +50,7 @@ final_pits_df = add_data_source(final_pits_df, v_data_source)
 
 # COMMAND ----------
 
-final_pits_df.write.mode('overwrite').parquet(f'{processed_folder_path}/pit_stops')
+final_pits_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.pit_stops')
 
 # COMMAND ----------
 
