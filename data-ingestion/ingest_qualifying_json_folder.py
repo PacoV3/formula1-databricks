@@ -4,6 +4,11 @@ v_data_source = dbutils.widgets.get('p_data_source')
 
 # COMMAND ----------
 
+dbutils.widgets.text('p_file_date', '2021-03-28')
+v_file_date = dbutils.widgets.get('p_file_date')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -30,7 +35,7 @@ qualifying_schema = StructType(fields=[
 
 # COMMAND ----------
 
-qualifying_df = spark.read.schema(qualifying_schema).json(f'{raw_folder_path}/qualifying', multiLine=True)
+qualifying_df = spark.read.schema(qualifying_schema).json(f'{raw_folder_path}/{v_file_date}/qualifying', multiLine=True)
 
 # COMMAND ----------
 
@@ -49,8 +54,21 @@ final_qualifying_df = add_data_source(final_qualifying_df, v_data_source)
 
 # COMMAND ----------
 
-final_qualifying_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.qualifying')
+final_qualifying_df = add_file_date(final_qualifying_df, v_file_date)
+
+# COMMAND ----------
+
+# final_qualifying_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.qualifying')
+incremental_load(input_df = final_qualifying_df, partition_column = 'race_id', db ='f1_processed', table = 'qualifying')
 
 # COMMAND ----------
 
 dbutils.notebook.exit('Success')
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT race_id, COUNT(1)
+# MAGIC FROM f1_processed.qualifying
+# MAGIC GROUP BY race_id
+# MAGIC ORDER BY race_id DESC;

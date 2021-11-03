@@ -14,6 +14,11 @@ v_data_source = dbutils.widgets.get('p_data_source')
 
 # COMMAND ----------
 
+dbutils.widgets.text('p_file_date', '2021-03-21')
+v_file_date = dbutils.widgets.get('p_file_date')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -53,7 +58,7 @@ races_schema = StructType(fields=[
 # COMMAND ----------
 
 # The correct way to import data from a CSV (including the headers)
-races_df = spark.read.option('header',True).schema(races_schema).csv(f'{raw_folder_path}/races.csv')
+races_df = spark.read.option('header',True).schema(races_schema).csv(f'{raw_folder_path}/{v_file_date}/races.csv')
 
 # COMMAND ----------
 
@@ -98,6 +103,10 @@ races_final_df = add_ingestion_date(races_final_df)
 # COMMAND ----------
 
 races_final_df = add_data_source(races_final_df, v_data_source)
+
+# COMMAND ----------
+
+races_final_df = add_file_date(races_final_df, v_file_date)
 
 # COMMAND ----------
 

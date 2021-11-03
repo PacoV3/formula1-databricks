@@ -4,6 +4,11 @@ v_data_source = dbutils.widgets.get('p_data_source')
 
 # COMMAND ----------
 
+dbutils.widgets.text('p_file_date', '2021-03-28')
+v_file_date = dbutils.widgets.get('p_file_date')
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -33,7 +38,7 @@ pits_schema = StructType(fields=[
 
 # COMMAND ----------
 
-pits_df = spark.read.schema(pits_schema).json(f'{raw_folder_path}/pit_stops.json', multiLine=True)
+pits_df = spark.read.schema(pits_schema).json(f'{raw_folder_path}/{v_file_date}/pit_stops.json', multiLine=True)
 
 # COMMAND ----------
 
@@ -50,8 +55,29 @@ final_pits_df = add_data_source(final_pits_df, v_data_source)
 
 # COMMAND ----------
 
-final_pits_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.pit_stops')
+final_pits_df = add_file_date(final_pits_df, v_file_date)
+
+# COMMAND ----------
+
+# final_pits_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.pit_stops')
+incremental_load(input_df = final_pits_df, partition_column = 'race_id', db ='f1_processed', table = 'pit_stops')
 
 # COMMAND ----------
 
 dbutils.notebook.exit('Success')
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT driver_id, COUNT(1)
+# MAGIC FROM f1_processed.pit_stops
+# MAGIC GROUP BY driver_id
+# MAGIC ORDER BY driver_id DESC;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT race_id, COUNT(1)
+# MAGIC FROM f1_processed.pit_stops
+# MAGIC GROUP BY race_id
+# MAGIC ORDER BY race_id DESC;
