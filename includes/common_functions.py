@@ -1,5 +1,6 @@
 # Databricks notebook source
 from pyspark.sql.functions import current_timestamp, lit
+from delta.tables import DeltaTable
 
 # COMMAND ----------
 
@@ -35,8 +36,30 @@ def incremental_load(input_df, partition_column, db, table):
     # DataFrame with the partitionBy column at the end
     selected_df = prepare_df_for_load(input_df, partition_column)
     # Insert the data
-    location = f'{db}.{table}'
-    if spark._jsparkSession.catalog().tableExists(location):
-        selected_df.write.mode('overwrite').insertInto(location)
+    db_table = f'{db}.{table}'
+    if spark._jsparkSession.catalog().tableExists(db_table):
+        selected_df.write.mode('overwrite').insertInto(db_table)
     else:
-        selected_df.write.mode('overwrite').partitionBy(partition_column).format('parquet').saveAsTable(location)
+        selected_df.write.mode('overwrite').partitionBy(partition_column).format('parquet').saveAsTable(db_table)
+
+# COMMAND ----------
+
+def delta_lake_incremental_load(input_df, partition_column, keys, db, table, table_route):
+    # When using a merge, is a good practice to add the partition column on the condition to make the process faster
+    spark.conf.set('spark.databricks.optimizer.dynamicPartitionPruning', 'true')
+    # Set the db and table
+    db_table = f'{db}.{table}'
+    # Create the merge condition
+    merge_condition = ''
+    for key in keys:
+        merge_condition += f'tgt.{key} = src.{key} AND '
+    merge_condition += f'tgt.{partition_column} = src.{partition_column}'
+    # Merge or create the table
+    if spark._jsparkSession.catalog().tableExists(db_table):
+        delta_table = DeltaTable.forPath(spark, table_route)
+        delta_table.alias('tgt').merge(input_df.alias('src'), merge_condition) \
+            .whenMatchedUpdateAll() \
+            .whenNotMatchedInsertAll() \
+            .execute()
+    else:
+        input_df.write.mode('overwrite').partitionBy(partition_column).format('delta').saveAsTable(db_table)

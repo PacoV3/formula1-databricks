@@ -157,7 +157,7 @@ circuits_final_df = add_file_date(circuits_final_df, v_file_date)
 
 # COMMAND ----------
 
-circuits_final_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.circuits')
+circuits_final_df.write.mode('overwrite').format('delta').saveAsTable('f1_processed.circuits')
 
 # COMMAND ----------
 

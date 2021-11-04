@@ -128,7 +128,7 @@ races_final_df = add_file_date(races_final_df, v_file_date)
 
 # COMMAND ----------
 
-races_final_df.write.mode('overwrite').partitionBy('race_year').format('parquet').saveAsTable('f1_processed.races')
+races_final_df.write.mode('overwrite').partitionBy('race_year').format('delta').saveAsTable('f1_processed.races')
 
 # COMMAND ----------
 

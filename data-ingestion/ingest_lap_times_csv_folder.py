@@ -17,10 +17,6 @@ v_file_date = dbutils.widgets.get('p_file_date')
 
 # COMMAND ----------
 
-# %fs ls /mnt/formula1dludemy/raw/lap_times
-
-# COMMAND ----------
-
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 
 # COMMAND ----------
@@ -58,7 +54,10 @@ final_laps_df = add_file_date(final_laps_df, v_file_date)
 # COMMAND ----------
 
 # final_laps_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.lap_times')
-incremental_load(input_df = final_laps_df, partition_column = 'race_id', db ='f1_processed', table = 'lap_times')
+# incremental_load(input_df = final_laps_df, partition_column = 'race_id', db ='f1_processed', table = 'lap_times')}
+delta_lake_incremental_load(input_df = final_laps_df, partition_column = 'race_id',
+                            keys = ['driver_id', 'lap'], db = 'f1_processed', table = 'lap_times',
+                            table_route = f'{processed_folder_path}/lap_times')
 
 # COMMAND ----------
 

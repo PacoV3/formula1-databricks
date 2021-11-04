@@ -16,7 +16,7 @@ from pyspark.sql.functions import sum, count, when
 
 # COMMAND ----------
 
-base_race_results_df = spark.read.parquet(f'{presentation_folder_path}/race_results')
+base_race_results_df = spark.read.format('delta').load(f'{presentation_folder_path}/race_results')
 
 # COMMAND ----------
 
@@ -37,7 +37,7 @@ race_results_df = base_race_results_df.filter(base_race_results_df.race_year.isi
 # COMMAND ----------
 
 driver_standings_df = race_results_df \
-    .groupBy('race_year', 'driver_name', 'driver_nationality', 'team') \
+    .groupBy('race_year', 'driver_name', 'driver_nationality') \
     .agg(count(when(race_results_df.position == 1, True)).alias('wins'),
         sum('points').alias('sum_points'),)
 
@@ -57,4 +57,12 @@ final_df = driver_standings_df.withColumn('rank', rank().over(drivers_rank_windo
 # COMMAND ----------
 
 # final_df.write.mode('overwrite').format('parquet').saveAsTable('f1_presentation.driver_standings')
-incremental_load(input_df = final_df, partition_column = 'race_year', db ='f1_presentation', table = 'driver_standings')
+# incremental_load(input_df = final_df, partition_column = 'race_year', db ='f1_presentation', table = 'driver_standings')
+delta_lake_incremental_load(input_df = final_df, partition_column = 'race_year',
+                            keys = ['driver_name'], db = 'f1_presentation', table = 'driver_standings',
+                            table_route = f'{presentation_folder_path}/driver_standings')
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT * FROM f1_presentation.driver_standings WHERE race_year = 2021 ORDER BY rank;

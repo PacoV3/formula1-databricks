@@ -12,7 +12,7 @@ v_file_date = dbutils.widgets.get('p_file_date')
 
 # COMMAND ----------
 
-base_race_results_df = spark.read.parquet(f'{presentation_folder_path}/race_results')
+base_race_results_df = spark.read.format('delta').load(f'{presentation_folder_path}/race_results')
 
 # COMMAND ----------
 
@@ -57,4 +57,12 @@ final_df = constructor_standings_df.withColumn('rank', rank().over(constructor_r
 # COMMAND ----------
 
 # final_df.write.mode('overwrite').format('parquet').saveAsTable('f1_presentation.constructor_standings')
-incremental_load(input_df = final_df, partition_column = 'race_year', db ='f1_presentation', table = 'constructor_standings')
+# incremental_load(input_df = final_df, partition_column = 'race_year', db ='f1_presentation', table = 'constructor_standings')
+delta_lake_incremental_load(input_df = final_df, partition_column = 'race_year',
+                            keys = ['team'], db = 'f1_presentation', table = 'constructor_standings',
+                            table_route = f'{presentation_folder_path}/constructor_standings')
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT * FROM f1_presentation.constructor_standings WHERE race_year = 2021 ORDER BY rank;

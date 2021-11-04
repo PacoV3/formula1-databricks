@@ -88,6 +88,10 @@ final_results_df = results_renamed_df.drop(results_renamed_df.statusId)
 
 # COMMAND ----------
 
+final_dedeuped_df = final_results_df.dropDuplicates(['race_id', 'driver_id'])
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC #### Method 1
 
@@ -124,7 +128,35 @@ final_results_df = results_renamed_df.drop(results_renamed_df.statusId)
 # COMMAND ----------
 
 # Function that implements the 2nd method
-incremental_load(input_df = final_results_df, partition_column = 'race_id', db ='f1_processed', table = 'results')
+# incremental_load(input_df = final_results_df, partition_column = 'race_id', db ='f1_processed', table = 'results')
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Method 3 - With Delta Lake
+
+# COMMAND ----------
+
+# from delta.tables import DeltaTable
+
+# COMMAND ----------
+
+# if spark._jsparkSession.catalog().tableExists('f1_processed.results'):
+#     delta_table = DeltaTable.forPath(spark, '/mnt/formula1dludemy/processed/results')
+#     delta_table.alias('tgt').merge(
+#         final_results_df.alias('src'),
+#         'tgt.result_id = src.result_id AND tgt.race_id = src.race_id') \
+#         .whenMatchedUpdateAll() \
+#         .whenNotMatchedInsertAll() \
+#         .execute()
+# else:
+#     final_results_df.write.mode('overwrite').partitionBy('race_id').format('delta').saveAsTable('f1_processed.results')
+
+# COMMAND ----------
+
+delta_lake_incremental_load(input_df = final_dedeuped_df, partition_column = 'race_id',
+                            keys = ['result_id'], db = 'f1_processed', table = 'results',
+                            table_route = f'{processed_folder_path}/results')
 
 # COMMAND ----------
 
@@ -141,9 +173,9 @@ dbutils.notebook.exit('Success')
 
 # COMMAND ----------
 
-# spark.sql(f'ALTER TABLE f1_processed.results DROP IF EXISTS PARTITION (race_id = {1053})')
-
-# COMMAND ----------
-
-# %sql
-# DROP TABLE IF EXISTS f1_processed.results;
+# MAGIC %sql
+# MAGIC SELECT race_id, driver_id, file_date, COUNT(1) AS races
+# MAGIC FROM f1_processed.results
+# MAGIC GROUP BY race_id, driver_id, file_date
+# MAGIC HAVING races > 1
+# MAGIC ORDER BY race_id DESC, driver_id DESC;

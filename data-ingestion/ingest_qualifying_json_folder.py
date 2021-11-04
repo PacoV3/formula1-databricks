@@ -59,7 +59,10 @@ final_qualifying_df = add_file_date(final_qualifying_df, v_file_date)
 # COMMAND ----------
 
 # final_qualifying_df.write.mode('overwrite').format('parquet').saveAsTable('f1_processed.qualifying')
-incremental_load(input_df = final_qualifying_df, partition_column = 'race_id', db ='f1_processed', table = 'qualifying')
+# incremental_load(input_df = final_qualifying_df, partition_column = 'race_id', db ='f1_processed', table = 'qualifying')
+delta_lake_incremental_load(input_df = final_qualifying_df, partition_column = 'race_id',
+                            keys = ['qualify_id'], db = 'f1_processed', table = 'qualifying',
+                            table_route = f'{processed_folder_path}/qualifying')
 
 # COMMAND ----------
 
