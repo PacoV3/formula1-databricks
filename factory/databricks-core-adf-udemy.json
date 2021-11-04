@@ -1,0 +1,9 @@
+{
+	"name": "databricks-core-adf-udemy",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "73f14dc3-0d4a-4581-ab57-019e3acad5e7",
+		"tenantId": "86e46ccc-a262-4371-adfa-e12c021481db"
+	}
+}
