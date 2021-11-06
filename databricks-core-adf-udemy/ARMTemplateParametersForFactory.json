@@ -4,6 +4,15 @@
 	"parameters": {
 		"factoryName": {
 			"value": "databricks-core-adf-udemy"
+		},
+		"ls_formula1_storage_accountKey": {
+			"value": ""
+		},
+		"ls_formula1_storage_properties_typeProperties_url": {
+			"value": "https://formula1dludemy.dfs.core.windows.net/"
+		},
+		"tr_process_formula1_data_properties_pipeline_parameters_p_window_end_date": {
+			"value": "@trigger().outputs.windowEndTime"
 		}
 	}
 }

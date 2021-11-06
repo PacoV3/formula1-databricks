@@ -7,6 +7,18 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "databricks-core-adf-udemy"
 		},
+		"ls_formula1_storage_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_formula1_storage'"
+		},
+		"ls_formula1_storage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://formula1dludemy.dfs.core.windows.net/"
+		},
+		"tr_process_formula1_data_properties_pipeline_parameters_p_window_end_date": {
+			"type": "string",
+			"defaultValue": "@trigger().outputs.windowEndTime"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -33,6 +45,15 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"ls_formula1_storage_accountKey": {
+						"value": "[parameters('ls_formula1_storage_accountKey')]"
+					},
+					"ls_formula1_storage_properties_typeProperties_url": {
+						"value": "[parameters('ls_formula1_storage_properties_typeProperties_url')]"
+					},
+					"tr_process_formula1_data_properties_pipeline_parameters_p_window_end_date": {
+						"value": "[parameters('tr_process_formula1_data_properties_pipeline_parameters_p_window_end_date')]"
 					}
 				}
 			},
