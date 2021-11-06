@@ -69,7 +69,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"notebookPath": "/Repos/franj.vents@gmail.com/formula1-udemy/data-ingestion/race_results",
+								"notebookPath": "/Repos/franj.vents@gmail.com/formula1-udemy/presentation/race_results",
 								"baseParameters": {
 									"p_file_date": {
 										"value": "@formatDateTime(pipeline().parameters.p_window_end_date, 'yyyy-MM-dd')",
@@ -95,7 +95,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"notebookPath": "/Repos/franj.vents@gmail.com/formula1-udemy/data-ingestion/calculated_race_results",
+								"notebookPath": "/Repos/franj.vents@gmail.com/formula1-udemy/presentation/calculated_race_results",
 								"baseParameters": {
 									"p_file_date": {
 										"value": "@formatDateTime(pipeline().parameters.p_window_end_date, 'yyyy-MM-dd')",
@@ -128,7 +128,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"notebookPath": "/Repos/franj.vents@gmail.com/formula1-udemy/data-ingestion/driver_standings",
+								"notebookPath": "/Repos/franj.vents@gmail.com/formula1-udemy/presentation/driver_standings",
 								"baseParameters": {
 									"p_file_date": {
 										"value": "@formatDateTime(pipeline().parameters.p_window_end_date, 'yyyy-MM-dd')",
@@ -161,7 +161,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"notebookPath": "/Repos/franj.vents@gmail.com/formula1-udemy/data-ingestion/constructor_standings",
+								"notebookPath": "/Repos/franj.vents@gmail.com/formula1-udemy/presentation/constructor_standings",
 								"baseParameters": {
 									"p_file_date": {
 										"value": "@formatDateTime(pipeline().parameters.p_window_end_date, 'yyyy-MM-dd')",
